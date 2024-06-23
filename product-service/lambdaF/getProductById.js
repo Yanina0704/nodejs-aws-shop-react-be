@@ -1,4 +1,5 @@
 exports.handler = async (event) => {
+  try{
     products = [
       {
         id: "1",
@@ -17,11 +18,32 @@ exports.handler = async (event) => {
           return {
             statusCode: 404,
             body: JSON.stringify({title: "Product doesn't found!"}),
+            headers: {
+              "Access-Control-Allow-Headers" : "Content-Type",
+              "Access-Control-Allow-Origin": "*",
+              "Access-Control-Allow-Methods": "GET"
+          },
           }}
           else {
             return {
               statusCode: 200,
               body: JSON.stringify(product),
-  };
-  }
-  }
+              headers: {
+                "Access-Control-Allow-Headers" : "Content-Type",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET"
+            },
+            };}
+          }
+          catch(error)
+          {
+            return{
+              statusCode: 500,
+              body: JSON.stringify(error.message),
+              headers: {
+                "Access-Control-Allow-Headers" : "Content-Type",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET"
+            },};
+          }
+        }

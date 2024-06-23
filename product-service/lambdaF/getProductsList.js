@@ -12,5 +12,10 @@ exports.handler = async(event, context, callback) => {
         title: "Book Story",
         price: 123,
       }]),
+      headers: {
+        "Access-Control-Allow-Headers" : "Content-Type",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET"
+    },
   };
   }

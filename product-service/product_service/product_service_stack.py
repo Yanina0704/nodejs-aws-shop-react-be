@@ -7,6 +7,7 @@ from aws_cdk import (
     # aws_sqs as sqs,
 )
 from constructs import Construct
+from product_service.populate_table import write_items
 
 class ProductServiceStack(Stack):
 
@@ -31,6 +32,9 @@ class ProductServiceStack(Stack):
             handler = "getProductById.handler", # Points to the 'getProductList' file in the lambda directory
         )
 
+        write_items()
+        
+
         CfnOutput(self, "GetProductsListFunctionName", value=get_products_list_function.function_name)
         CfnOutput(self, "GetProductByIdFunctionName", value=get_product_by_id_function.function_name)
 
@@ -38,10 +42,8 @@ class ProductServiceStack(Stack):
                                  "ProductServiceApi", 
                                  rest_api_name = "Product Service",
                                  default_cors_preflight_options = apigateway.CorsOptions(
-                                     allow_origins=apigateway.Cors.ALL_ORIGINS,
-                                     allow_methods=apigateway.Cors.ALL_METHODS,
-                                     allow_credentials=True,
-                                     allow_headers=apigateway.Cors.ALL_ORIGINS))
+                                     allow_origins = apigateway.Cors.ALL_ORIGINS,
+                                     allow_methods = apigateway.Cors.ALL_METHODS))
         
         products_resource = api.root.add_resource("products")
         products_resource.add_method("GET", apigateway.LambdaIntegration(get_products_list_function))
