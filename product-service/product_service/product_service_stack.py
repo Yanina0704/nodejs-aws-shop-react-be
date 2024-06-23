@@ -31,8 +31,8 @@ class ProductServiceStack(Stack):
             code = _lambda.Code.from_asset("lambdaF"), # Points to the lambdaF directory
             handler = "getProductById.handler", # Points to the 'getProductList' file in the lambda directory
         )
-
-        write_items()
+        
+        #write_items()
         
 
         CfnOutput(self, "GetProductsListFunctionName", value=get_products_list_function.function_name)

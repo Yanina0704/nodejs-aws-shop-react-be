@@ -1,0 +1,44 @@
+[
+    {
+      "title": "Milk chocolate",
+      "description": "Milk chocolate contains 30% cacao",
+      "price": 12,
+      "count": 14
+    },
+    {
+      "title": "Book 'Alice's Adventures in Wonderland'",
+      "description": "Story of a girl named Alice who falls through a rabbit hole into a fantasy world of anthropomorphic creatures",
+      "price": 120,
+      "count": 10
+    },
+    {
+      "title": "Red Roses",
+      "description": "Fresh roses, contains 7 flowers",
+      "price": 85,
+      "count": 5
+    },
+    {
+      "title": "White Roses",
+      "description": "Fresh roses, contains 7 flowers",
+      "price": 85,
+      "count": 15
+    },
+    {
+      "title": "Mix Roses",
+      "description": "Contains 2 white roses, 2 red roses, 1 purple rose, 2 pink roses",
+      "price": 100,
+      "count": 7
+    },
+    {
+      "title": "Dark Chocolate",
+      "description": "Contains 85% cacao",
+      "price": 14,
+      "count": 50
+    },
+    {
+      "title": "White Teddy Bear",
+      "description": "Cute, soft teddy bear",
+      "price": 40,
+      "count": 25
+    }
+  ]
