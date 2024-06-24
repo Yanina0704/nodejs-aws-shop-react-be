@@ -52,6 +52,15 @@ class ProductServiceStack(Stack):
             handler = "getProductById.handler", # Points to the 'getProductList' file in the lambda directory
             environment = environment,
         )
+
+        create_product_function = _lambda.Function(
+            self,
+            "CreateProductHandler",
+            runtime = _lambda.Runtime.NODEJS_20_X, # Choose any supported Node.js runtime
+            code = _lambda.Code.from_asset("lambdaF"), # Points to the lambdaF directory
+            handler = "createProduct.handler", # Points to the 'getProductList' file in the lambda directory
+            environment = environment,
+        )
         
         #write_items()
         
@@ -68,12 +77,15 @@ class ProductServiceStack(Stack):
         
         products_resource = api.root.add_resource("products")
         products_resource.add_method("GET", apigateway.LambdaIntegration(get_products_list_function))
+        products_resource.add_method("POST", apigateway.LambdaIntegration(create_product_function))
         
         product_by_id_resource = products_resource.add_resource("{productId}")
         product_by_id_resource.add_method("GET", apigateway.LambdaIntegration(get_product_by_id_function))
 
         products_table.grant_read_write_data(get_products_list_function)
         products_table.grant_read_write_data(get_product_by_id_function)
+        products_table.grant_read_write_data(create_product_function)
+        stocks_table.grant_read_write_data(create_product_function)
         stocks_table.grant_read_write_data(get_products_list_function)
         stocks_table.grant_read_write_data(get_product_by_id_function)
 

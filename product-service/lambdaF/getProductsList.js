@@ -4,7 +4,7 @@ const { DynamoDBDocumentClient, ScanCommand } = require("@aws-sdk/lib-dynamodb")
 exports.handler = async(event, context, callback) => {
   try{
     const client = new DynamoDBClient({});
-  const docClient = DynamoDBDocumentClient.from(client);
+    const docClient = DynamoDBDocumentClient.from(client);
 
     products = []
 
