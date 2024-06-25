@@ -67,7 +67,7 @@ exports.handler = async(event, context, callback) => {
           console.log(response2);
           return {
             statusCode: 200,
-            body: JSON.stringify(`Product: ${id} CREATED!`),
+            body: JSON.stringify(`Product with id = ${id} was created!`),
             headers: {
                 "Access-Control-Allow-Headers" : "Content-Type",
                 "Access-Control-Allow-Origin": "*",
