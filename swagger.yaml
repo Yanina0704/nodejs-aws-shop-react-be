@@ -6,6 +6,7 @@ info:
     Some useful links:
     - [Front-end repository](https://github.com/Yanina0704/nodejs-aws-shop-react)
     - [Back-end repository](https://github.com/Yanina0704/nodejs-aws-shop-react-be)
+    - [My Shop site](https://d1kfe8cgy726y5.cloudfront.net/)
   version: 1.0.0
 servers:
   - url: https://q39eeoopke.execute-api.us-east-1.amazonaws.com/prod
