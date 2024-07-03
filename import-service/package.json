@@ -1,0 +1,25 @@
+{
+  "name": "import-service",
+  "version": "1.0.0",
+  "description": "Import service for aws shop",
+  "main": "app.py",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "nodejs-aws-shop-rect-be"
+  },
+  "keywords": [
+    "cdk",
+    "csv"
+  ],
+  "author": "Yanina",
+  "license": "ISC",
+  "dependencies": {
+    "csv-parser": "^3.0.0"
+  }
+}
