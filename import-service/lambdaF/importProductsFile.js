@@ -10,7 +10,7 @@ exports.handler = async(event, context, callback) => {
     const file_name = event["queryStringParameters"]["name"];
     console.log("GET /import request. Parameters: ", file_name);
     
-    const client = new S3Client();
+    const client = new S3Client({region: process.env.REGION});
 
     const myBucket = "import-service-bucket-for-shop-csv";
     const myKey = "uploaded/" + file_name;
@@ -21,16 +21,14 @@ exports.handler = async(event, context, callback) => {
         ContentType: 'text/csv',
       });
 
-    
-
-      console.log("My Command: ", command);  
+    console.log("My Command: ", command);  
 
     const url = await getSignedUrl(client, command, { expiresIn: 300 });
     console.log("My url: ", url);
     
     return {
         statusCode: 200,
-        body: JSON.stringify(url),
+        body: url,
         headers: {
             "Content-Type": "text/plain",
             "Access-Control-Allow-Headers": "Content-Type",
