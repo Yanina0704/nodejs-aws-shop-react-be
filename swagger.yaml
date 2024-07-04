@@ -1,0 +1,134 @@
+openapi: 3.0.3
+info:
+  title: AWS SHOP - OpenAPI 3.0
+  description: |-
+    This is a sample AWS Shop Server based on the OpenAPI 3.0 specification.
+    Some useful links:
+    - [Front-end repository](https://github.com/Yanina0704/nodejs-aws-shop-react)
+    - [Back-end repository](https://github.com/Yanina0704/nodejs-aws-shop-react-be)
+    - [My Shop site](https://d1kfe8cgy726y5.cloudfront.net/)
+  version: 1.0.0
+servers:
+  - url: https://q39eeoopke.execute-api.us-east-1.amazonaws.com/prod
+tags:
+  - name: product-service
+    description: Everything about products in the shop
+paths:
+  /products:
+    get:
+      tags:
+        - product
+      summary: List of products
+      description: List of products
+      operationId: getProductsListHandler
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+    post:
+      tags:
+        - product
+      summary: Create a new product to the shop
+      description: Create a new product to the shop
+      operationId: createProduct
+      requestBody:
+        description: Create a new product in the shop
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/body'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error400'
+        '500':
+          description: Another errors
+
+  /products/{productID}:
+    get:
+      tags:
+        - product
+      summary: Find product by ID
+      description: Returns a single product
+      operationId: getProductByIdHandler
+      parameters:
+        - name: productID
+          in: path
+          description: ID of product to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+    
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id(not null):
+          type: string
+          example: '1fr-sth-1'
+        title(not null):
+          type: string
+          example: 'Chocolate'
+        price:
+          type: number
+          example: 12
+        discription:
+          type: string
+          example: 'Milk chocolate contains 30% of cacao'
+        count:
+          type: number
+          example: 50
+    Success:
+      type: string
+      example: 'Product with id = uatt1-etrgf-stgdf-ashdy was created!'
+    Error400:
+      type: string
+      example: 'Validation Error: title is required; price and count should be a NUMBER'
+    body:
+      type: object
+      properties:
+        title:
+          type: string
+          example: 'Chocolate'
+        price:
+          type: number
+          example: 12
+        discription:
+          type: string
+          example: 'Milk chocolate contains 30% of cacao'
+        count:
+          type: number
+          example: 50
+    NotFound:
+      type: string
+      example: "'title': 'Product not found'"
