@@ -34,7 +34,7 @@ class ImportServiceStack(Stack):
         import_file_parser_function = _lambda.Function(
             self,
             "importFileParserHandler",
-            runtime = _lambda.Runtime.NODEJS_18_X, # Choose any supported Node.js runtime
+            runtime = _lambda.Runtime.NODEJS_20_X, # Choose any supported Node.js runtime
             code = _lambda.Code.from_asset("lambdaF"), # Points to the lambdaF directory
             handler = "importFileParser.handler", # Points to the 'importProductsFile' file in the lambda directory
             environment = {

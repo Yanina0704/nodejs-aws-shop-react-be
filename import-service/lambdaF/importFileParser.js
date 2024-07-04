@@ -2,8 +2,6 @@ const { S3Client, GetObjectCommand, CopyObjectCommand, DeleteObjectCommand } = r
 const csvParser = require("csv-parser");
 const { Readable } = require("stream");
   
-
-  
   exports.handler = async (event) => {
     const bucket = event.Records[0].s3.bucket.name;
     console.log("Bucket:", bucket);
