@@ -48,9 +48,9 @@ exports.handler = async (event) => {
                 title: title,
                 description: description,
             };
-            
+            console.log("Sns_Srn: ", process.env.SNS_ARN);
             const messageParams = {
-                TopicArn: process.env.CREATE_PRODUCT_TOPIC_ARN,
+                TopicArn: process.env.SNS_ARN,
                 Message: JSON.stringify(productResponse),
             };
             await snsClient.send(new PublishCommand(messageParams));

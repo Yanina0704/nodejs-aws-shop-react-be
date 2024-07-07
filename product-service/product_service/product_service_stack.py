@@ -96,9 +96,9 @@ class ProductServiceStack(Stack):
             code = _lambda.Code.from_asset("lambdaF"), # Points to the lambdaF directory
             handler = "catalogBatchProcess.handler", # Points to the 'catalogBatchProcess' file in the lambda directory
             environment = { 'PRODUCTS_TABLE_NAME': products_table_name,
-                        'STOCKS_TABLE_NAME': stocks_table_name,
-                        'SNS_ARN': product_topic.topic_arn,
-                        'REGION': self.region },
+                            'STOCKS_TABLE_NAME': stocks_table_name,
+                            'SNS_ARN': product_topic.topic_arn,
+                            'REGION': self.region },
         )
         
         
@@ -112,8 +112,12 @@ class ProductServiceStack(Stack):
         products_table.grant_read_write_data(get_products_list_function)
         products_table.grant_read_write_data(get_product_by_id_function)
         products_table.grant_read_write_data(create_product_function)
+        products_table.grant_read_write_data(catalog_batch_process)
         stocks_table.grant_read_write_data(create_product_function)
         stocks_table.grant_read_write_data(get_products_list_function)
         stocks_table.grant_read_write_data(get_product_by_id_function)
+        stocks_table.grant_read_write_data(catalog_batch_process)
         product_topic.grant_publish(catalog_batch_process)
+        catalog_batch_process.add_event_source(catalog_batch)
+
 
