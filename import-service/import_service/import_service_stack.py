@@ -6,7 +6,9 @@ from aws_cdk import (
     aws_s3_notifications as s3not,
     aws_iam as iam,
     aws_s3 as s3,
-    # aws_sqs as sqs,
+    aws_sqs as sqs,
+    aws_sns as sns,
+    aws_sns_subscriptions as sns_sub,
 )
 from constructs import Construct
 
