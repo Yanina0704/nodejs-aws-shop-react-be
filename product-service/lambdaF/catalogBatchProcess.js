@@ -48,7 +48,7 @@ exports.handler = async (event) => {
                 title: title,
                 description: description,
             };
-            console.log("Sns_Srn: ", process.env.SNS_ARN);
+            console.log("Sns_Arn: ", process.env.SNS_ARN);
             const messageParams = {
                 TopicArn: process.env.SNS_ARN,
                 Message: JSON.stringify(productResponse),
