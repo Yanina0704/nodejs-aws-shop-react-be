@@ -86,8 +86,8 @@ class ProductServiceStack(Stack):
         product_topic = sns.Topic(self, 'createProductTopic')
         product_topic.add_subscription(sns_sub.EmailSubscription(email_address=email, 
                                                                  filter_policy={'status': sns.SubscriptionFilter.string_filter(allowlist=['success'])}))
-        product_topic.add_subscription(sns_sub.EmailSubscription(email_address=email, 
-                                                                 filter_policy={'status': sns.SubscriptionFilter.string_filter(allowlist=['error'])}))
+        # product_topic.add_subscription(sns_sub.EmailSubscription(email_address=email, 
+        #                                                          filter_policy={'status': sns.SubscriptionFilter.string_filter(allowlist=['error'])}))
 
         catalog_batch_process = _lambda.Function(
             self,
@@ -97,7 +97,8 @@ class ProductServiceStack(Stack):
             handler = "catalogBatchProcess.handler", # Points to the 'catalogBatchProcess' file in the lambda directory
             environment = { 'PRODUCTS_TABLE_NAME': products_table_name,
                         'STOCKS_TABLE_NAME': stocks_table_name,
-                        'SNS_ARN': product_topic.topic_arn },
+                        'SNS_ARN': product_topic.topic_arn,
+                        'REGION': self.region },
         )
         
         

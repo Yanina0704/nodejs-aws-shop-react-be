@@ -1,6 +1,8 @@
 const { S3Client, GetObjectCommand, CopyObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const csvParser = require("csv-parser");
 const { Readable } = require("stream");
+const AWS = require("aws-sdk");
+const sqs = new AWS.SQS();
   
   exports.handler = async (event) => {
     const bucket = event.Records[0].s3.bucket.name;
@@ -9,6 +11,7 @@ const { Readable } = require("stream");
     console.log("Key:", key);
 
     const s3 = new S3Client({ region: process.env.REGION });
+    const catalogItemsQueueUrl = process.env.CATALOG_ITEMS_QUEUE_URL;
   
     const params = {
       Bucket: bucket,
@@ -22,8 +25,14 @@ const { Readable } = require("stream");
     if (Body instanceof Readable) {
       await new Promise((resolve, reject) => {
         Body.pipe(csvParser())
-        .on("data", (data) => {
+        .on("data", async(data) => {
             console.log("Record: ", data);
+            const messageParams = {
+              QueueUrl: catalogItemsQueueUrl,
+              MessageBody: JSON.stringify(data),
+            };
+            await sqs.sendMessage(messageParams).promise();
+            console.log("Message sent to SQS:", data);
           })
           .on("end", async () => {
             console.log("CSV file was processed successfully.");
