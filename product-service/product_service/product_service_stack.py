@@ -32,7 +32,8 @@ class ProductServiceStack(Stack):
 
         products_table_name = 'products'
         stocks_table_name = 'stocks'
-        email ='yanina0704@gmail.com'
+        email_success ='yanina0704@gmail.com'
+        email_error ="yanina0704@mail.ru"
 
         products_table = dynamodb.Table.from_table_name(self, 'ProductsTable', products_table_name)
                                
@@ -84,10 +85,10 @@ class ProductServiceStack(Stack):
         catalog_products = sqs.Queue(self, 'catalogItemsQueue', queue_name='catalogItemsQueue')
         catalog_batch = lambda_event.SqsEventSource(catalog_products, batch_size = 5)
         product_topic = sns.Topic(self, 'createProductTopic')
-        product_topic.add_subscription(sns_sub.EmailSubscription(email_address=email, 
+        product_topic.add_subscription(sns_sub.EmailSubscription(email_address=email_success, 
                                                                  filter_policy={'status': sns.SubscriptionFilter.string_filter(allowlist=['success'])}))
-        # product_topic.add_subscription(sns_sub.EmailSubscription(email_address=email, 
-        #                                                          filter_policy={'status': sns.SubscriptionFilter.string_filter(allowlist=['error'])}))
+        product_topic.add_subscription(sns_sub.EmailSubscription(email_address=email_error, 
+                                                                 filter_policy={'status': sns.SubscriptionFilter.string_filter(allowlist=['error'])}))
 
         catalog_batch_process = _lambda.Function(
             self,
