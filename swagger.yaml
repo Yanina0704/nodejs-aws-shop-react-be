@@ -10,6 +10,13 @@ info:
   version: 1.0.0
 servers:
   - url: https://q39eeoopke.execute-api.us-east-1.amazonaws.com/prod
+    variables:
+      restapi_id(product-service):
+        default: q39eeoopke
+      restapi_id(import-service):
+        default: 943t6cqqgf
+      region:
+        default: us-east-1
 tags:
   - name: product-service
     description: Everything about products in the shop

@@ -6,12 +6,15 @@ from aws_cdk import (
     aws_s3_notifications as s3not,
     aws_iam as iam,
     aws_s3 as s3,
-    # aws_sqs as sqs,
+    aws_sqs as sqs,
+    aws_sns as sns,
+    aws_sns_subscriptions as sns_sub,
 )
 from constructs import Construct
 
 BUCKET_NAME = "import-service-bucket-for-shop-csv"
 BUCKET_ARN = "arn:aws:s3:::import-service-bucket-for-shop-csv"
+SQS_ARN ="arn:aws:sqs:us-east-1:339712855557:catalogItemsQueue"
 
 class ImportServiceStack(Stack):
 
@@ -19,6 +22,7 @@ class ImportServiceStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
 
         bucket = s3.Bucket.from_bucket_name(self, "ImportBucket", BUCKET_NAME)
+        queue = sqs.Queue.from_queue_arn(self, "catalogItemsQueue", SQS_ARN)
 
         import_products_file_function = _lambda.Function(
             self,
@@ -39,7 +43,8 @@ class ImportServiceStack(Stack):
             handler = "importFileParser.handler", # Points to the 'importProductsFile' file in the lambda directory
             environment = {
                 "BUCKET": BUCKET_NAME,
-                "REGION": self.region},
+                "REGION": self.region,
+                "CATALOG_ITEMS_QUEUE_URL": queue.queue_url},
         )
 
         bucket.grant_put(import_products_file_function)
@@ -48,6 +53,7 @@ class ImportServiceStack(Stack):
         bucket.grant_put(import_file_parser_function)
         bucket.grant_read_write(import_file_parser_function)
         bucket.grant_delete(import_file_parser_function)
+        queue.grant_send_messages(import_file_parser_function)
 
         api = apigateway.RestApi(self, 
                                  "ImportServiceApi", 

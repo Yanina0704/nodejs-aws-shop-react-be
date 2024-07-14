@@ -6,7 +6,11 @@ from aws_cdk import (
     aws_apigateway as apigateway,
     RemovalPolicy as policy,
     aws_dynamodb as dynamodb,
-    # aws_sqs as sqs,
+    aws_sqs as sqs,
+    aws_sns as sns,
+    aws_sns_subscriptions as sns_sub,
+    
+    aws_lambda_event_sources as lambda_event,
 )
 from aws_cdk.aws_dynamodb import(
     Table,
@@ -17,6 +21,7 @@ from aws_cdk.aws_dynamodb import(
 
 from constructs import Construct
 from product_service.populate_table import write_items
+import boto3
 
 class ProductServiceStack(Stack):
 
@@ -27,6 +32,8 @@ class ProductServiceStack(Stack):
 
         products_table_name = 'products'
         stocks_table_name = 'stocks'
+        email_success ='yanina0704@gmail.com'
+        email_error ="yanina0704@mail.ru"
 
         products_table = dynamodb.Table.from_table_name(self, 'ProductsTable', products_table_name)
                                
@@ -75,6 +82,27 @@ class ProductServiceStack(Stack):
                                      allow_origins = apigateway.Cors.ALL_ORIGINS,
                                      allow_methods = apigateway.Cors.ALL_METHODS))
         
+        catalog_products = sqs.Queue(self, 'catalogItemsQueue', queue_name='catalogItemsQueue')
+        catalog_batch = lambda_event.SqsEventSource(catalog_products, batch_size = 5)
+        product_topic = sns.Topic(self, 'createProductTopic')
+        product_topic.add_subscription(sns_sub.EmailSubscription(email_address=email_success, 
+                                                                 filter_policy={'status': sns.SubscriptionFilter.string_filter(allowlist=['success'])}))
+        product_topic.add_subscription(sns_sub.EmailSubscription(email_address=email_error, 
+                                                                 filter_policy={'status': sns.SubscriptionFilter.string_filter(allowlist=['error'])}))
+
+        catalog_batch_process = _lambda.Function(
+            self,
+            "CatalogBatchProcess",
+            runtime = _lambda.Runtime.NODEJS_20_X, # Choose any supported Node.js runtime
+            code = _lambda.Code.from_asset("lambdaF"), # Points to the lambdaF directory
+            handler = "catalogBatchProcess.handler", # Points to the 'catalogBatchProcess' file in the lambda directory
+            environment = { 'PRODUCTS_TABLE_NAME': products_table_name,
+                            'STOCKS_TABLE_NAME': stocks_table_name,
+                            'SNS_ARN': product_topic.topic_arn,
+                            'REGION': self.region },
+        )
+        
+        
         products_resource = api.root.add_resource("products")
         products_resource.add_method("GET", apigateway.LambdaIntegration(get_products_list_function))
         products_resource.add_method("POST", apigateway.LambdaIntegration(create_product_function))
@@ -85,12 +113,12 @@ class ProductServiceStack(Stack):
         products_table.grant_read_write_data(get_products_list_function)
         products_table.grant_read_write_data(get_product_by_id_function)
         products_table.grant_read_write_data(create_product_function)
+        products_table.grant_read_write_data(catalog_batch_process)
         stocks_table.grant_read_write_data(create_product_function)
         stocks_table.grant_read_write_data(get_products_list_function)
         stocks_table.grant_read_write_data(get_product_by_id_function)
+        stocks_table.grant_read_write_data(catalog_batch_process)
+        product_topic.grant_publish(catalog_batch_process)
+        catalog_batch_process.add_event_source(catalog_batch)
 
-        # example resource
-        # queue = sqs.Queue(
-        #     self, "ProductServiceQueue",
-        #     visibility_timeout=Duration.seconds(300),
-        # )
+
