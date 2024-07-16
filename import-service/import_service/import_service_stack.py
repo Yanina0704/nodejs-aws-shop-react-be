@@ -68,8 +68,32 @@ class ImportServiceStack(Stack):
                                          "X-Api-Key",
                                          "X-Amz-Security-Token",]))
         
+        basic_authorizer_lambda = _lambda.Function.from_function_name(self, "authFunction", "AuthFunction")
+
+        authorizer = apigateway.TokenAuthorizer(
+            self, 'BasicAuthorizer',
+            handler=basic_authorizer_lambda,
+            identity_source='method.request.header.Authorization')
+        
+        api.add_gateway_response("UnauthorizedResponse",
+                                 type=apigateway.ResponseType.UNAUTHORIZED,
+                                 response_headers={"Access-Control-Allow-Origin": "'*'",
+                                                   "Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                                                   "Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE'",},
+                                 status_code="401",
+                                 templates={"application/json": '{"message": "Unauthorized"}'},)
+        
+        api.add_gateway_response("ForbiddenResponse",
+                                 type=apigateway.ResponseType.ACCESS_DENIED,
+                                 response_headers={"Access-Control-Allow-Origin": "'*'",
+                                                   "Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                                                   "Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE'",},
+                                 status_code="403",
+                                 templates={"application/json": '{"message": "Forbidden"}'},)
+
+        
         products_resource = api.root.add_resource("import")
-        products_resource.add_method("GET", apigateway.LambdaIntegration(import_products_file_function))
+        products_resource.add_method("GET", apigateway.LambdaIntegration(import_products_file_function), authorization_type=apigateway.AuthorizationType.CUSTOM, authorizer=authorizer)
 
         notification = s3not.LambdaDestination(import_file_parser_function)
 
