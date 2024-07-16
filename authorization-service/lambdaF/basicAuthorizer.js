@@ -4,9 +4,9 @@ const {
     APIGatewayTokenAuthorizerEvent,
     StatementEffect,
 } = require("aws-lambda");
-const {dotenv} = require("dotenv");
+const dotenv = require("dotenv").config();
 
-dotenv.config();
+// dotenv.config();
 
 const generatePolicy = (
     principalId,
@@ -46,19 +46,24 @@ exports.handler = async (event) =>{
         return generatePolicy("unauthorized", "Deny", event.methodArn, {
             statusCode: 401,
             headers: headers,
-            message: "Unauthorized",
+            message: "Unauthorized. Sorry",
         });
     }
 
     const token = event.authorizationToken.split(" ").pop();
+    console.log("token", token);
     if (!token || token === 'undefined' || token === 'null') {
-        throw new Error('Unauthorized');
+        throw new Error('Unauthorized. Sorry');
       }
 
     const decodedCredentials = Buffer.from(token, "base64").toString("utf-8");
     const [username, password] = decodedCredentials.split("=");
 
+    console.log("username", username);
+    console.log("password", password);
+
     const storedPassword = process.env[username];
+    console.log("real password", storedPassword);
 
     try {
         if (storedPassword && storedPassword === password) {
