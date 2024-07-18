@@ -8,81 +8,65 @@ const dotenv = require("dotenv").config();
 
 // dotenv.config();
 
-const generatePolicy = (
-    principalId,
-    effect,
-    resource,
-    context = {}
-) => {
-    const authResponse = {
-        principalId,
-        policyDocument: {
-            Version: "2012-10-17",
-            Statement: [
-                {
-                    Action: "execute-api:Invoke",
-                    Effect: effect,
-                    Resource: resource,
-                },
-            ],
-        },
-        context,
-    };
-    return authResponse;
+exports.handler = async (event) => {
+
+console.log("request", JSON.stringify(event));
+    let policy;
+    if (event.type !== 'TOKEN') {
+        policy = generatePolicy('Unauthorized user', 'Deny', event.methodArn);
+        return policy;
+    }
+    try {
+        const encodedCreds = event.authorizationToken.split(' ').pop();
+        const buffer = Buffer.from(encodedCreds, 'base64');
+        const clientCreds = buffer.toString('utf-8').split('=');
+        
+        const [userName, password] = clientCreds;
+        console.log("userName, password", JSON.stringify(clientCreds));
+        const envUserPassword = process.env[userName];
+        const result = !envUserPassword || envUserPassword !== password ? 'Deny' : 'Allow';
+        if(result === 'Allow'){
+            policy = generatePolicySuccess(encodedCreds, result, event.methodArn);}
+        else{
+            policy = generatePolicy(encodedCreds, result, event.methodArn, "Fobidden");
+        }
+        return policy;
+    } catch (error) {
+        policy = generatePolicy('Unauthorized user', 'Deny', event.methodArn, "");
+        return policy;
+    }
 };
 
-exports.handler = async (event) =>{
-    console.log("Event:", event);
-
-    const headers = {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": "true",
+const generatePolicy = (principalId, result, resource, error) => {
+    return {
+        principalId,
+        policyDocument: {
+            Version: '2012-10-17',
+            Statement: [
+                {
+                    Action: 'execute-api:Invoke',
+                    Effect: result,
+                    Resource: resource
+                }
+            ]
+        },
+        context: {
+            statusCode: error.includes('Unauthorized') ? 401 : 403,
+          },
     };
-
-    if (!event.authorizationToken) {
-        return generatePolicy("unauthorized", "Deny", event.methodArn, {
-            statusCode: 401,
-            headers: headers,
-            message: "Unauthorized. Sorry",
-        });
-    }
-
-    const token = event.authorizationToken.split(" ").pop();
-    console.log("token", token);
-    if (!token || token === 'undefined' || token === 'null') {
-        throw new Error('Unauthorized. Sorry');
-      }
-
-    const decodedCredentials = Buffer.from(token, "base64").toString("utf-8");
-    const [username, password] = decodedCredentials.split("=");
-
-    console.log("username", username);
-    console.log("password", password);
-
-    const storedPassword = process.env[username];
-    console.log("real password", storedPassword);
-
-    try {
-        if (storedPassword && storedPassword === password) {
-            console.log("Successfully authorized!");
-            return generatePolicy(username, "Allow", event.methodArn);
-        } else {
-            console.log("Unauthorized! Wrong credentials!");
-            return generatePolicy("unauthorized", "Deny", event.methodArn, {
-                statusCode: 403,
-                headers: headers,
-                message: "Forbidden",
-            });
+};
+const generatePolicySuccess = (principalId, result, resource) => {
+    return {
+        principalId,
+        policyDocument: {
+            Version: '2012-10-17',
+            Statement: [
+                {
+                    Action: 'execute-api:Invoke',
+                    Effect: result,
+                    Resource: resource
+                }
+            ]
         }
-    } catch (error) {
-        console.log("Unhandled error!", error);
-        return generatePolicy("unauthorized", "Deny", event.methodArn, {
-            statusCode: 500,
-            headers: headers,
-            message: "Error during authorization",
-        });
-    }
+    };
 };
