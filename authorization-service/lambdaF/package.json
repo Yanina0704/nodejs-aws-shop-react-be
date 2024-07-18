@@ -1,0 +1,19 @@
+{
+  "name": "lambdaf",
+  "version": "1.0.0",
+  "description": "authotization",
+  "main": "basicAuthorizer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "nodejs-aws-shop-react-be"
+  },
+  "author": "Yanina0704",
+  "license": "ISC",
+  "dependencies": {
+    "aws-lambda": "^1.0.7",
+    "dotenv": "^16.4.5"
+  }
+}
